@@ -1,0 +1,10 @@
+- name: update all packages
+  yum:
+    name: "*"
+    state: latest
+
+- name: basic packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: ["vim", "telnet", "wget", "curl", "git"]

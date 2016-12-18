@@ -1,0 +1,13 @@
+ansible_ssh_user: root
+ansible_ssh_pass: root
+
+kube_docker_desired_enabled: yes
+kube_docker_desired_state: running
+
+kube_node_type: minion
+
+kubernetes_kube_config_logtostderr: "true"
+kubernetes_kube_config_verbosity: 0
+kubernetes_kube_config_allow_priv: "false"
+kubernetes_kube_config_kube_master_endpoint: "http://kube-master:8080"
+kubernetes_kube_config_etcd_servers: "http://kube-master:2379"

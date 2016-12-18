@@ -1,0 +1,6 @@
+[kube-masters]
+kube-master
+
+[kube-minions]
+kube-minion-[1:3]
+

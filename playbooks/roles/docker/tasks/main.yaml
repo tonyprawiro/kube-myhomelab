@@ -1,0 +1,10 @@
+- name: ensure docker is installed
+  yum:
+    name: docker
+    state: present
+
+- name: ensure docker state
+  service:
+    name: docker
+    enabled: "{{ kube_docker_desired_enabled }}"
+    state: "{{ kube_docker_desired_state }}"

@@ -1,0 +1,7 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+192.168.2.81 kube-master
+192.168.2.91 kube-minion-1
+192.168.2.92 kube-minion-2
+192.168.2.93 kube-minion-3

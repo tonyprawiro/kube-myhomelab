@@ -2,7 +2,7 @@ ansible_ssh_user: root
 ansible_ssh_pass: root
 
 kube_docker_desired_enabled: yes
-kube_docker_desired_state: running
+kube_docker_desired_state: started
 
 kube_node_type: master
 

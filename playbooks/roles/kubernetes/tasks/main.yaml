@@ -1,3 +1,7 @@
+### turn off selinux
+- selinux:
+    state: disabled
+
 ### turn off firewall, let docker manage
 
 - name: ensure iptables and firewalld are off, let docker manage it
@@ -16,7 +20,6 @@
     baseurl: http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/
     gpgcheck: no
     enabled: yes
-    params: ""
 
 ### kubernetes packages
 
@@ -56,12 +59,13 @@
   - name: ensure etcd is running
     service:
       name: etcd
-      state: running
+      state: started
       enabled: yes
 
   - name: check if network overlay config is in place
     shell: /usr/bin/etcdctl get /kube-centos/network/config
     register: etcd_check_network_overlay_config
+    ignore_errors: yes
 
   - block:
 
@@ -74,7 +78,7 @@
         mode: 0700
 
     - name: initialize network overlay settings in etcd
-      shell: /root/init_etcd_network_overlay.sh
+      shell: /bin/sh /root/init_etcd_network_overlay.sh
 
     when: etcd_check_network_overlay_config.rc != 0
 

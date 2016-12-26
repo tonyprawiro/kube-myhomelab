@@ -29,16 +29,6 @@
     state: present
   with_items: ["kubernetes", "etcd", "flannel"]
 
-### hosts
-
-- name: ensure host files are properly populated
-  copy:
-    src: "hosts_file"
-    dest: "/etc/hosts"
-    owner: root
-    group: root
-    mode: 0644
-
 ### etcd
 
 - block:
@@ -115,3 +105,21 @@
   notify:
     - restart kube-apiserver
   when: kube_node_type == "master"
+
+### services
+
+- name: ensure appropriate master services are enabled and started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: ["etcd", "kube-apiserver", "kube-controller-manager", "kube-scheduler", "flanneld"]
+  when: kube_node_type == "master"
+
+- name: ensure appropriate minion services are enabled and started
+  service:
+    name: "{{ item }}"
+    enabled: yes
+    state: started
+  with_items: ["kube-proxy", "kubelet", "flanneld", "docker"]
+  when: kube_node_type == "minion"

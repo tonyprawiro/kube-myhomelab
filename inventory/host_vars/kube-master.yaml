@@ -18,9 +18,13 @@ kubernetes_flanneld_config_etcd_endpoints: "http://kube-master:2379"
 kubernetes_flanneld_config_etcd_key: "/kube-centos/network"
 kubernetes_flanneld_options: ""
 
+kubernetes_service_account_key_file_path: "/etc/pki/tls/private/serviceaccount.key"
+
 kubernetes_apiserver_config_api_address: "--address=0.0.0.0"
 kubernetes_apiserver_config_api_port: "--port=8080"
 kubernetes_apiserver_config_kubelet_port: "--kubelet-port=10250"
 kubernetes_apiserver_config_etcd_servers: "--etcd-servers=http://127.0.0.1:2379"
 kubernetes_apiserver_config_service_addresses: "--service-cluster-ip-range=10.254.0.0/16"
-kubernetes_apiserver_config_api_args: ""
+kubernetes_apiserver_config_api_args: "--service_account_key_file={{ kubernetes_service_account_key_file_path }}"
+
+kubernetes_controller_manager_args: "--service_account_private_key_file={{ kubernetes_service_account_key_file_path }}"

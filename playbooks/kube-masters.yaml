@@ -1,0 +1,5 @@
+- hosts:
+    - kube-masters
+  roles:
+    - { role: host-inits, become: true }
+    - { role: kubernetes, become: true }

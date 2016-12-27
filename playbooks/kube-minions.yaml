@@ -1,8 +1,5 @@
 - hosts:
-    - kube-masters
     - kube-minions
   roles:
     - { role: host-inits, become: true }
-    - { role: hosts_entries, become: true }
-    - { role: docker, become: true }
     - { role: kubernetes, become: true }

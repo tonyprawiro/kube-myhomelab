@@ -7,4 +7,4 @@
   yum:
     name: "{{ item }}"
     state: present
-  with_items: ["vim", "telnet", "wget", "curl", "git"]
+  with_items: ["vim", "telnet", "wget", "curl", "git", "net-tools", "bind-utils", "libselinux-python"]

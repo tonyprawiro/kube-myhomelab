@@ -1,5 +1,6 @@
 ### turn off selinux
-- selinux:
+- name: ensure selinux is disabled
+  selinux:
     state: disabled
 
 ### turn off firewall, let docker manage
@@ -10,6 +11,13 @@
     state: stopped
   with_items: ["iptables.service", "firewalld"]
   ignore_errors: yes
+
+### docker
+
+- name: ensure docker is installed
+  yum:
+    name: docker
+    state: present
 
 ### yum repo
 
@@ -23,7 +31,7 @@
 
 ### kubernetes packages
 
-- name: ensure kubernetes, etcd, and flannel are installed
+- name: ensure kubernetes, etcd, and flanneld are installed
   yum:
     name: "{{ item }}"
     state: present
@@ -79,6 +87,20 @@
 
   when: kube_node_type == "master"
 
+### flannel
+- name: configure flanneld
+  template:
+    src: etc.sysconfig.flanneld.j2
+    dest: /etc/sysconfig/flanneld
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart flanneld
+
+- name: flush flanneld
+  meta: flush_handlers
+
 ### kubernetes
 
 - name: configure kubernetes config file
@@ -106,9 +128,20 @@
     - restart kube-apiserver
   when: kube_node_type == "master"
 
+- name: configure kubelet
+  template:
+    src: etc.kubernetes.kubelet.j2
+    dest: /etc/kubernetes/kubelet
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart kubelet
+  when: kube_node_type == "minion"
+
 ### services
 
-- name: ensure appropriate master services are enabled and started
+- name: enable master services
   service:
     name: "{{ item }}"
     enabled: yes
@@ -116,10 +149,26 @@
   with_items: ["etcd", "kube-apiserver", "kube-controller-manager", "kube-scheduler", "flanneld"]
   when: kube_node_type == "master"
 
-- name: ensure appropriate minion services are enabled and started
+- name: disable master services
+  service:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  with_items: ["docker", "kubelet", "kube-proxy"]
+  when: kube_node_type == "master"
+
+- name: enable minion services
   service:
     name: "{{ item }}"
     enabled: yes
     state: started
   with_items: ["kube-proxy", "kubelet", "flanneld", "docker"]
+  when: kube_node_type == "minion"
+
+- name: disable minion services
+  service:
+    name: "{{ item }}"
+    enabled: no
+    state: stopped
+  with_items: ["etcd", "kube-apiserver", "kube-controller-manager", "kube-scheduler"]
   when: kube_node_type == "minion"

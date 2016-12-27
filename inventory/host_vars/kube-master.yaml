@@ -1,14 +1,5 @@
 ansible_ssh_user: root
-ansible_ssh_pass: root
-
-hosts_entries:
-  - "192.168.2.90 kube-master"
-  - "192.168.2.91 kube-minion-1"
-  - "192.168.2.92 kube-minion-2"
-  - "192.168.2.93 kube-minion-3"
-
-kube_docker_desired_enabled: no
-kube_docker_desired_state: stopped
+ansible_ssh_pass: i need coffee
 
 kube_node_type: master
 
@@ -22,6 +13,10 @@ kubernetes_etcd_config_etcd_name: default
 kubernetes_etcd_config_etcd_data_dir: /var/lib/etcd/default.etcd
 kubernetes_etcd_config_listen_client_urls: http://0.0.0.0:2379
 kubernetes_etcd_config_adv_client_urls: http://0.0.0.0:2379
+
+kubernetes_flanneld_config_etcd_endpoints: "http://kube-master:2379"
+kubernetes_flanneld_config_etcd_key: "/kube-centos/network"
+kubernetes_flanneld_options: ""
 
 kubernetes_apiserver_config_api_address: "--address=0.0.0.0"
 kubernetes_apiserver_config_api_port: "--port=8080"

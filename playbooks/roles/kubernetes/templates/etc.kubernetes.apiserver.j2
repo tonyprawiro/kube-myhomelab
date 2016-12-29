@@ -21,7 +21,7 @@ KUBE_ETCD_SERVERS="{{ kubernetes_apiserver_config_etcd_servers }}"
 KUBE_SERVICE_ADDRESSES="{{ kubernetes_apiserver_config_service_addresses }}"
 
 # default admission control policies
-KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota"
+KUBE_ADMISSION_CONTROL="{{ kubernetes_apiserver_config_admission_control }}"
 
 # Add your own!
 KUBE_API_ARGS="{{ kubernetes_apiserver_config_api_args }}"

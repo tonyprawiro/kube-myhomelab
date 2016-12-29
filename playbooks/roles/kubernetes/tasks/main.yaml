@@ -39,31 +39,53 @@
 
 ### service account key
 
-- name: stat service account key
-  stat:
-    path: "{{ kubernetes_service_account_key_file_path }}"
-  register: st_service_account_key
-  when: kube_node_type == "master"
+# - name: stat service account key
+#   stat:
+#     path: "{{ kubernetes_service_account_key_file_path }}"
+#   register: st_service_account_key
+#   when: kube_node_type == "master"
+#
+# - block:
+#
+#   - name: generate service account key
+#     shell: "openssl genrsa -out {{ kubernetes_service_account_key_file_path }} 2048"
+#
+#   - name: set service account key ownership and permission
+#     file:
+#       path: "{{ kubernetes_service_account_key_file_path }}"
+#       owner: kube
+#       group: kube
+#       mode: 0700
+#
+#   - name: restart kube-apiserver and kube-controller-manager
+#     service:
+#       name: "{{ item }}"
+#       state: restarted
+#     with_items: ["kube-apiserver", "kube-controller-manager"]
+#
+#   when: kube_node_type == "master" and not st_service_account_key.stat.exists
+
+### certs
+
+- name: ensure /srv/kubernetes exists and owned by kube
+  file:
+    name: /srv/kubernetes
+    owner: kube
+    group: kube
+    mode: 0644
+    state: directory
+
+- name: check if ca cert exists
+  state:
+    path: /srv/kubernetes/ca.crt
+  register: st_ca_cert
 
 - block:
 
-  - name: generate service account key
-    shell: "openssl genrsa -out {{ kubernetes_service_account_key_file_path }} 2048"
+  - name: create ca cert
+    shell: openssl genrsa -out /srv/kubernetes/ca.key 4096
 
-  - name: set service account key ownership and permission
-    file:
-      path: "{{ kubernetes_service_account_key_file_path }}"
-      owner: kube
-      group: kube
-      mode: 0700
-
-  - name: restart kube-apiserver and kube-controller-manager
-    service:
-      name: "{{ item }}"
-      state: restarted
-    with_items: ["kube-apiserver", "kube-controller-manager"]
-
-  when: kube_node_type == "master" and not st_service_account_key.stat.exists
+  when: not st_ca_cert.stat.exists
 
 ### etcd
 

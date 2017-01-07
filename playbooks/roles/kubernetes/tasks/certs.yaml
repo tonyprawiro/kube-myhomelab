@@ -1,0 +1,111 @@
+### certs
+
+- name: ensure easy-rsa is absent
+  file:
+    path: /opt/easy-rsa-master
+    state: absent
+
+- name: wipe out all certs
+  file:
+    path: /srv/kubernetes/pki
+    state: absent
+
+- name: download easy-rsa
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz
+    dest: /opt/easy-rsa.tar.gz
+    owner: root
+    group: root
+    mode: 0744
+
+- name: extract easy-rsa
+  shell: tar -zxf /opt/easy-rsa.tar.gz -C /opt/
+
+- name: init-pki
+  shell: ./easyrsa init-pki
+  args:
+    chdir: /opt/easy-rsa-master/easyrsa3
+
+- name: build ca
+  shell: >
+    ./easyrsa --batch --req-cn="{{ kubernetes_apiserver_config_req_cn }}" build-ca nopass
+  args:
+    chdir: /opt/easy-rsa-master/easyrsa3
+
+- name: generate server certs
+  shell: >
+    ./easyrsa --subject-alt-name="{{ kubernetes_apiserver_config_altname }}" build-server-full kubernetes-master nopass
+  args:
+    chdir: /opt/easy-rsa-master/easyrsa3
+
+- name: generate client certs
+  shell: >
+    ./easyrsa build-client-full kubecfg nopass
+  args:
+    chdir: /opt/easy-rsa-master/easyrsa3
+
+- name: wipe out /srv's
+  shell: rm -rf /srv/*
+
+- name: ensure /srv/kubernetes/pki's exists and owned by kube
+  file:
+    name: "{{ item }}"
+    owner: kube
+    group: kube
+    mode: 0755
+    state: directory
+    recurse: yes
+  with_items:
+    - /srv/kubernetes/pki
+    - /srv/kubernetes/pki/issued
+    - /srv/kubernetes/pki/private
+
+- name: copy files
+  shell: "cp {{ item.src }} {{ item.dest }}"
+  with_items:
+    - src: /opt/easy-rsa-master/easyrsa3/pki/ca.crt
+      dest: /srv/kubernetes/pki/ca.crt
+    - src: /opt/easy-rsa-master/easyrsa3/pki/issued/kubernetes-master.crt
+      dest: /srv/kubernetes/pki/issued/kubernetes-master.crt
+    - src: /opt/easy-rsa-master/easyrsa3/pki/private/kubernetes-master.key
+      dest: /srv/kubernetes/pki/private/kubernetes-master.key
+    - src: /opt/easy-rsa-master/easyrsa3/pki/issued/kubecfg.crt
+      dest: /srv/kubernetes/pki/issued/kubecfg.crt
+    - src: /opt/easy-rsa-master/easyrsa3/pki/private/kubecfg.key
+      dest: /srv/kubernetes/pki/private/kubecfg.key
+
+- name: ensure easy-rsa is absent
+  file:
+    path: /opt/easy-rsa-master
+    state: absent
+
+- name: ensure cert and key files ownership
+  file:
+    path: /srv/kubernetes
+    owner: kube
+    group: kube
+    recurse: yes
+
+- name: ensure cert and key files permission
+  file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - path: /srv/kubernetes/pki/ca.crt
+      mode: "u=rw,g=r,o=r"
+    - path: /srv/kubernetes/pki/issued/kubernetes-master.crt
+      mode: "u=rw,g=r,o=r"
+    - path: /srv/kubernetes/pki/issued/kubecfg.crt
+      mode: "u=rw,g=r,o=r"
+    - path: /srv/kubernetes/pki/private/kubernetes-master.key
+      mode: "u=rw,g-rwx,o-rwx"
+    - path: /srv/kubernetes/pki/private/kubecfg.key
+      mode: "u=rw,g-rwx,o-rwx"
+
+  - name: restart affected services
+
+    - restart kube-apiserver
+    - restart kube-controller-manager
+    - restart kube-scheduler
+    - restart kubelet
+    - restart kube-proxy

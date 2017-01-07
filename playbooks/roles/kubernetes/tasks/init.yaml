@@ -1,0 +1,38 @@
+### turn off selinux
+- name: ensure selinux is disabled
+  selinux:
+    state: disabled
+
+### turn off firewall, let docker manage
+
+- name: ensure iptables and firewalld are off, let docker manage it
+  service:
+    name: "{{ item }}"
+    state: stopped
+  with_items: ["iptables.service", "firewalld"]
+  ignore_errors: yes
+
+### docker
+
+- name: ensure docker is installed
+  yum:
+    name: docker
+    state: present
+
+### yum repo
+
+- name: install centos 7 virt common repo
+  yum_repository:
+    name: virt7-docker-common-release
+    description: virt7-docker-common-release
+    baseurl: http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/
+    gpgcheck: no
+    enabled: yes
+
+### kubernetes packages
+
+- name: ensure kubernetes, etcd, and flanneld are installed
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: ["kubernetes", "etcd", "flannel"]

@@ -3,6 +3,8 @@ ansible_ssh_pass: i need coffee
 
 kube_node_type: minion
 
+kubernetes_hostname: kube-minion-3
+
 kubernetes_flanneld_config_etcd_endpoints: "http://kube-master:2379"
 kubernetes_flanneld_config_etcd_key: "/kube-centos/network"
 kubernetes_flanneld_options: ""

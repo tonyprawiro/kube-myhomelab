@@ -1,3 +1,5 @@
+# If you change the group names, the roles need to be updated too. Best not to change.
+
 [kube-masters]
 kube-master
 

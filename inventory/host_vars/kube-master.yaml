@@ -3,6 +3,10 @@ ansible_ssh_pass: i need coffee
 
 kube_node_type: master
 
+kubernetes_hostname: kube-master
+
+kube_regenerate_rsa_key: true
+
 kube_regenerate_certs: true
 
 kubernetes_kube_config_logtostderr: "true"
@@ -47,3 +51,4 @@ kubernetes_controller_manager_args: >-
   --service-account-private-key-file=/srv/kubernetes/pki/private/kubernetes-master.key
   --node-monitor-grace-period=20s
   --pod-eviction-timeout=20s
+

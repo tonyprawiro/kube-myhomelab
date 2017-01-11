@@ -1,5 +1,8 @@
 - include: init.yaml
 
+- include: passwordless_ssh.yaml
+  when: kube_regenerate_rsa_key is defined and kube_regenerate_rsa_key
+
 #- include: service_account_key.yaml
 
 - include: certs.yaml
